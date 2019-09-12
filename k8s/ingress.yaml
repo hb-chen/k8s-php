@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-php-app
+  namespace: app-ns
+spec:
+  rules:
+  - host: hbchen.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: php-app
+          servicePort: 8080

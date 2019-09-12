@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: app-ns
+  name: git-sync
+spec:
+  selector:
+    matchLabels:
+      demo: git-sync
+  template:
+    metadata:
+      labels:
+        demo: git-sync
+    spec:
+      volumes:
+      - name: git-secret
+        secret:
+          secretName: git-creds
+          defaultMode: 288 # = mode 0440
+      # 代码共享存储
+      - name: app-src-volume
+        hostPath:
+          path: /var/www/src
+      containers:
+      - name: git-sync
+        #image: k8s.gcr.io/git-sync:v3.1.2
+        image: googlecontainer/git-sync:v3.1.2
+        args:
+        #- "-ssh"
+        #- "-repo=git@github.com:hb-chen/k8s-php"
+        - "-repo=https://github.com/hb-chen/k8s-php.git"
+        - "-root=/var/www/src"
+        - "-dest=k8s-ph"
+        - "-branch=master"
+        - "-depth=1"
+        - "-wait=60"
+        - "-max-sync-failures=-1"
+        securityContext:
+          runAsUser: 0 #65533 # git-sync user
+        volumeMounts:
+        - name: git-secret
+          mountPath: /etc/git-secret
+        - name: app-src-volume
+          mountPath: /var/www/src
+      securityContext:
+        fsGroup: 0 #65533 # to make SSH key readable

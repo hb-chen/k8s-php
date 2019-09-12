@@ -1,0 +1,55 @@
+FROM centos:7
+
+RUN yum update -y && \
+    yum install -y epel-release
+
+RUN yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
+    yum install -y yum-utils && \
+    yum-config-manager --enable remi-php56 && \
+    yum -y update
+
+RUN yum install -y php-fpm php-xml php-cli php-dba php-gd php-intl php-mysql php-pdo php-redis
+
+RUN yum clean all
+
+RUN set -eux; \
+        [ ! -d /var/www/html ]; \
+        mkdir -p /var/www/html; \
+        chown apache:apache /var/www/html; \
+        chmod 777 /var/www/html
+
+RUN set -eux; \
+        cd /etc; \
+        if [ -d php-fpm.d ]; then \
+            cp php-fpm.d/www.conf php-fpm.d/www.conf.default; \
+            sed -i 's/listen.allowed_clients = 127.0.0.1/;listen.allowed_clients = 127.0.0.1/g' php-fpm.d/www.conf; \
+        fi; \
+        { \
+            echo '[global]'; \
+            echo 'error_log = /proc/self/fd/2'; \
+            echo; echo '; https://github.com/docker-library/php/pull/725#issuecomment-443540114'; echo ';log_limit = 8192'; \
+            echo; \
+            echo '[www]'; \
+            echo '; if we send this to /proc/self/fd/1, it never appears'; \
+            echo 'access.log = /proc/self/fd/2'; \
+            echo; \
+            echo 'clear_env = no'; \
+            echo; \
+            echo '; Ensure worker stdout and stderr are sent to the main error log.'; \
+            echo ';catch_workers_output = yes'; \
+            echo ';decorate_workers_output = no'; \
+        } | tee php-fpm.d/docker.conf; \
+        { \
+            echo '[global]'; \
+            echo 'daemonize = no'; \
+            echo; \
+            echo '[www]'; \
+            echo 'listen = 0.0.0.0:9000'; \
+        } | tee php-fpm.d/zz-docker-02.conf
+
+WORKDIR /var/www/html
+EXPOSE 9000
+
+STOPSIGNAL SIGQUIT
+
+CMD ["php-fpm", "-F"]
