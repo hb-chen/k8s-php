@@ -1,6 +1,10 @@
 # k8s-php
 PHP应用容器化，nginx + php-fpm + mysql + redis
 
+- TODO
+ - [ ] 代码与Pod分开部署时依赖问题
+ - [ ] git-sync同步失败、异常等
+
 ## Docker镜像
 
 - [Alpine Dockerfile](/Dockerfile)
@@ -70,11 +74,12 @@ kubectl exec -it php-app-6d96948494-bgtpj -c nginx -- /bin/sh
 - [ ] pod拉取
     - initContainers
 - [x] node拉取
-    - DaemonSet
+    - [DaemonSet](/k8s/git-sync-daemonset.yaml)
+    - [git-sync](#git-sync)
 - [ ] 共享云存储
     - StatefulSet
 
-### [git-sync](https://github.com/kubernetes/git-sync)
+### git-sync
 
 [giy-sync ssh](https://github.com/kubernetes/git-sync/blob/master/docs/ssh.md)
 
