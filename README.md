@@ -27,7 +27,7 @@ hbchen/php:5.6.40-fpm-alpine-mysql-redis
 
 # Nginx
 docker run --rm --name nginx -p 8080:80 \
--v /Users/Steven/Develop/Php/k8s-php/nginx/conf.d:/etc/nginx/conf.d:ro \
+-v {pwd}/nginx/conf.d:/etc/nginx/conf.d:ro \
 --link php-app:php-app \
 nginx:1.17.3-alpine
 ```
