@@ -30,7 +30,7 @@ spec:
         #- "-repo=git@github.com:hb-chen/k8s-php"
         - "-repo=https://github.com/hb-chen/k8s-php.git"
         - "-root=/var/www/src"
-        - "-dest=k8s-ph"
+        - "-dest=k8s-php"
         - "-branch=master"
         - "-depth=1"
         - "-wait=60"
