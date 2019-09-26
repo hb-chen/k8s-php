@@ -6,7 +6,21 @@
  * Time: 4:57 PM
  */
 
-phpinfo();
-// echo 'PHP version:' . phpversion() . PHP_EOL;
-// echo 'Redis:' . extension_loaded('redis') . PHP_EOL;
-// echo 'MySQL:' . function_exists('mysqli_connect') . PHP_EOL;
+switch ($_REQUEST['s']) {
+    case '/healthz':
+        {
+            echo 'ok';
+            break;
+        }
+    case '/info':
+        {
+            phpinfo();
+            break;
+        }
+    default:
+        {
+            echo 'PHP version:' . phpversion() . PHP_EOL;
+            echo 'Redis:' . extension_loaded('redis') . PHP_EOL;
+            echo 'MySQL:' . function_exists('mysqli_connect') . PHP_EOL;
+        }
+}
