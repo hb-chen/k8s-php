@@ -2,7 +2,7 @@
 PHP应用容器化，nginx + php-fpm + mysql + redis
 
 **TODO**
-- [ ] 代码与Pod分开部署时依赖问题
+- [x] 代码与Pod分开部署时依赖问题
     - Readiness
     - Liveness
 - [ ] 共享存储
