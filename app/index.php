@@ -17,10 +17,15 @@ switch ($_REQUEST['s']) {
             phpinfo();
             break;
         }
-    default:
+    case '/':
         {
             echo 'PHP version:' . phpversion() . PHP_EOL;
             echo 'Redis:' . extension_loaded('redis') . PHP_EOL;
             echo 'MySQL:' . function_exists('mysqli_connect') . PHP_EOL;
+            break;
+        }
+    default:
+        {
+            http_response_code(404);
         }
 }
