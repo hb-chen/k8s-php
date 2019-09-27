@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: app-ns
+  name: php-app
+  labels:
+    app: php-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php-app
+  template:
+    metadata:
+      labels:
+        app: php-app
+    spec:
+      volumes:
+      # 代码共享存储
+      #- name: app-src-volume
+      #  hostPath:
+      #    path: /var/www/src
+      - name: app-src-volume
+        flexVolume:
+          driver: "alicloud/nas"
+          options:
+            server: "xxxxxxxxxx-xxxxx.cn-hangzhou.nas.aliyuncs.com"
+            path: "/var/www/src"
+            vers: "3"
+            options: "nolock,tcp,noresvport"
+      # Add the ConfigMap we declared above as a volume for the pod
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
+      containers:
+      - name: php-app
+        image: hbchen/php:5.6.40-fpm-alpine-mysql-redis
+        volumeMounts:
+        - name: app-src-volume
+          mountPath: /var/www/src
+        # After the container has started, copy the PHP files from this
+        # container's local filesystem to the shared volume, which is
+        # mounted at /var/www/html.
+        #lifecycle:
+        #  postStart:
+        #    exec:
+        #      command: ["/bin/sh", "-c", "echo '<?php phpinfo(); ?>' >> /var/www/html/index.php"]
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /var/www/src/k8s-php/app/index.php
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      - name: nginx
+        image: nginx:1.17.3-alpine
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/conf.d/app.conf
+          subPath: nginx.conf
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+            httpHeaders:
+            - name: Custom-Header
+              value: Awesome
+          initialDelaySeconds: 3
+          periodSeconds: 5
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: app-ns
+  name: php-app
+spec:
+  selector:
+    app: php-app
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 80

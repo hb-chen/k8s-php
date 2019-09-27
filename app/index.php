@@ -19,6 +19,7 @@ switch ($_REQUEST['s']) {
         }
     case '/':
         {
+            echo 'Hostname:' . gethostname() . PHP_EOL;
             echo 'PHP version:' . phpversion() . PHP_EOL;
             echo 'Redis:' . extension_loaded('redis') . PHP_EOL;
             echo 'MySQL:' . function_exists('mysqli_connect') . PHP_EOL;
