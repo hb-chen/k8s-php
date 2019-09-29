@@ -14,7 +14,7 @@ PHP应用容器化，nginx + php-fpm + mysql + redis
         - *git-sync的webhook是拉取到更新时触发webhook，并非webhook触发sync*
         - [ ] initContainers模式
         - [ ] DaemonSet模式
-        - [ ] StatefulSet模式
+        - [ ] Deployment模式
  
 
 ## Docker镜像
@@ -92,8 +92,8 @@ kubectl describe pod php-app-6d96948494-bgtpj
 - [x] node拉取
     - [DaemonSet](/k8s/git-sync-daemonset.yaml)
     - [git-sync](#git-sync)
-- [ ] 共享存储
-    - StatefulSet
+- [x] 共享存储
+    - [Deployment](/k8s/nas-git-sync-deployment.yaml)
 
 ### git-sync
 
@@ -184,11 +184,11 @@ Usage of /git-sync:
 
 #### PULL代码时404
 ```bash
-➜  yypapa_ios git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
+➜  xxx git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
 No input file specified.
-➜  yypapa_ios git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
+➜  xxx git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
 No input file specified.
-➜  yypapa_ios git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
+➜  xxx git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
 No input file specified.
 ```
 
