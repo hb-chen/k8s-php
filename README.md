@@ -5,11 +5,13 @@ PHP应用容器化，nginx + php-fpm + mysql + redis
 - [x] 代码与Pod分开部署时依赖问题
     - Readiness
     - Liveness
-- [ ] 共享存储
+- [x] 共享存储
 - git-sync
+	- [ ] [`PULL`代码时`404`](#PULL代码时404)
     - [ ] 同步失败、异常等
     - [ ] git-sync权限问题，当前`fsGroup`、`runAsUser`以`0`运行
-    - git-sync webhook
+    - webhook
+        - *git-sync的webhook是拉取到更新时触发webhook，并非webhook触发sync*
         - [ ] initContainers模式
         - [ ] DaemonSet模式
         - [ ] StatefulSet模式
@@ -20,7 +22,8 @@ PHP应用容器化，nginx + php-fpm + mysql + redis
 - [Alpine Dockerfile](/Dockerfile)
 - [CentOS Dockerfile](/Dockerfile.CentOS)
     - 参考:[docker-library/php](https://github.com/docker-library/php)
-    - 镜像很大，但对`OS`有需求的考虑，比如：阿里云要挂载共享存储，插件只支持`CentOS7`镜像
+    - 镜像很大，但对`OS`有需求的考虑，比如：~~阿里云要挂载共享存储，插件只支持`CentOS7`镜像~~
+    (这里被阿里的工单回复误导了，测试`Alpine`镜像使用`Flexvolume`挂载`NAS`卷可以使用)
 - [已打包镜像](https://hub.docker.com/r/hbchen/php)
 
 ```bash
@@ -76,6 +79,9 @@ kubectl config set-context --current --namespace=app-ns
 kubectl logs php-app-6d96948494-bgtpj php-app
 
 kubectl exec -it php-app-6d96948494-bgtpj -c nginx -- /bin/sh
+
+kubectl describe pod php-app-6d96948494-bgtpj
+
 ```
 
 ## 代码部署
@@ -174,4 +180,23 @@ Usage of /git-sync:
     	the timeout used when communicating with the webhook target (default 1s)
   -webhook-url string
     	the URL for the webook to send to. Default is "" which disables the webook.
+```
+
+#### PULL代码时404
+```bash
+➜  yypapa_ios git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
+No input file specified.
+➜  yypapa_ios git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
+No input file specified.
+➜  yypapa_ios git:(master) ✗ curl -HHost:hbchen.com 'http://121.41.19.167'
+No input file specified.
+```
+
+```bash
+127.0.0.1 -  27/Sep/2019:06:24:43 +0000 "GET /index.php" 404
+[27-Sep-2019 06:24:43] WARNING: [pool www] child 7 said into stderr: "ERROR: Unable to open primary script: /var/www/src/k8s-php/app/index.php (No such file or directory)"
+127.0.0.1 -  27/Sep/2019:06:24:48 +0000 "GET /index.php" 404
+[27-Sep-2019 06:24:48] WARNING: [pool www] child 6 said into stderr: "ERROR: Unable to open primary script: /var/www/src/k8s-php/app/index.php (No such file or directory)"
+127.0.0.1 -  27/Sep/2019:06:24:53 +0000 "GET /index.php" 404
+[27-Sep-2019 06:24:53] WARNING: [pool www] child 7 said into stderr: "ERROR: Unable to open primary script: /var/www/src/k8s-php/app/index.php (No such file or directory)"
 ```
